@@ -347,14 +347,6 @@ open class TextView: UITextView {
         }
     }
 
-    override open var textAlignment: NSTextAlignment {
-        didSet {
-            if (textAlignment != oldValue) {
-                recalculateTypingAttributes()
-            }
-        }
-    }
-
 
     /// This property returns the Attributes associated to the Extra Line Fragment.
     ///
