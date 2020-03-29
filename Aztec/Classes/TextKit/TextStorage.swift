@@ -93,8 +93,19 @@ open class TextStorage: NSTextStorage {
     
     // MARK: - Storage
 
-    fileprivate var textStore = NSMutableAttributedString(string: "", attributes: nil)
-    fileprivate var textStoreString = ""
+    fileprivate var textStoreCore : TextStorageCore
+
+    // MARK: - Init & deinit
+
+    public init(
+        defaultStorage: TextStorageCore = TextStorageCore()) {
+        self.textStoreCore = defaultStorage
+        super.init()
+    }
+
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     // MARK: - Delegates
 
@@ -111,7 +122,7 @@ open class TextStorage: NSTextStorage {
     // MARK: - Calculated Properties
 
     override open var string: String {
-        return textStoreString
+        return textStoreCore.string
     }
 
     open var mediaAttachments: [MediaAttachment] {
@@ -131,7 +142,7 @@ open class TextStorage: NSTextStorage {
     func range<T : NSTextAttachment>(for attachment: T) -> NSRange? {
         var range: NSRange?
 
-        textStore.enumerateAttachmentsOfType(T.self) { (currentAttachment, currentRange, stop) in
+        textStoreCore.enumerateAttachmentsOfType(T.self) { (currentAttachment, currentRange, stop) in
             if attachment == currentAttachment {
                 range = currentRange
                 stop.pointee = true
@@ -219,7 +230,7 @@ open class TextStorage: NSTextStorage {
             return
         }
 
-        textStore.enumerateAttachmentsOfType(MediaAttachment.self, range: range) { (attachment, range, stop) in
+        textStoreCore.enumerateAttachmentsOfType(MediaAttachment.self, range: range) { (attachment, range, stop) in
             delegate.storage(self, deletedAttachment: attachment)
         }
     }
@@ -232,32 +243,17 @@ open class TextStorage: NSTextStorage {
     ///     NOT at the caret location.  For N characters we always have N+1 character locations.
     ///
     override open func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [NSAttributedString.Key : Any] {
-
-        guard textStore.length > 0 else {
-            return [:]
-        }
-
-        return textStore.attributes(at: location, effectiveRange: range)
+        return textStoreCore.attributes(at: location, effectiveRange: range)
     }
 
-    private func replaceTextStoreString(_ range: NSRange, with string: String) {
-        let utf16String = textStoreString.utf16
-        let startIndex = utf16String.index(utf16String.startIndex, offsetBy: range.location)
-        let endIndex = utf16String.index(startIndex, offsetBy: range.length)
-        textStoreString.replaceSubrange(startIndex..<endIndex, with: string)
-    }
- 
     override open func replaceCharacters(in range: NSRange, with str: String) {
 
         beginEditing()
-
         detectAttachmentRemoved(in: range)
-        textStore.replaceCharacters(in: range, with: str)
 
-        replaceTextStoreString(range, with: str)
+        textStoreCore.replaceCharacters(in: range, with: str)
 
         edited(.editedCharacters, range: range, changeInLength: str.count - range.length)
-        
         endEditing()
     }
 
@@ -266,25 +262,22 @@ open class TextStorage: NSTextStorage {
         let preprocessedString = preprocessAttributesForInsertion(attrString)
 
         beginEditing()
-
         detectAttachmentRemoved(in: range)
-        textStore.replaceCharacters(in: range, with: preprocessedString)
 
-        replaceTextStoreString(range, with: attrString.string)
+        textStoreCore.replaceCharacters(in: range, with: attrString, and: preprocessedString)
 
         edited([.editedAttributes, .editedCharacters], range: range, changeInLength: attrString.length - range.length)
-
         endEditing()
     }
 
     override open func setAttributes(_ attrs: [NSAttributedString.Key: Any]?, range: NSRange) {
-        beginEditing()
 
+        beginEditing()
         let fixedAttributes = ensureMatchingFontAndParagraphHeaderStyles(beforeApplying: attrs ?? [:], at: range)
 
-        textStore.setAttributes(fixedAttributes, range: range)
+        textStoreCore.setAttributes(fixedAttributes, range: range)
+
         edited(.editedAttributes, range: range, changeInLength: 0)
-        
         endEditing()
     }
 
@@ -351,15 +344,6 @@ open class TextStorage: NSTextStorage {
         }
     }
 
-    private func enumerateRenderableAttachments(in text: NSAttributedString, range: NSRange? = nil, block: ((RenderableAttachment, NSRange, UnsafeMutablePointer<ObjCBool>) -> Void)) {
-        let range = range ?? NSMakeRange(0, length)
-        text.enumerateAttribute(.attachment, in: range, options: []) { (object, range, stop) in
-            if let object = object as? RenderableAttachment {
-                block(object, range, stop)
-            }
-        }
-    }
-
     // MARK: - HTML Interaction
 
     open func getHTML(prettify: Bool = false) -> String {
@@ -378,23 +362,20 @@ open class TextStorage: NSTextStorage {
         let originalLength = length
         let attrString = htmlConverter.attributedString(from: html, defaultAttributes: defaultAttributes)
 
-        textStore = NSMutableAttributedString(attributedString: attrString)
-        textStoreString = textStore.string
-        
-        setupAttachmentDelegates()
+        textStoreCore.setString(attrString)
 
-        edited([.editedAttributes, .editedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStore.length - originalLength)
+        setupAttachmentDelegates()
+        edited([.editedAttributes, .editedCharacters], range: NSRange(location: 0, length: originalLength), changeInLength: textStoreCore.length - originalLength)
     }
     
     private func setupAttachmentDelegates() {
-        textStore.enumerateAttachmentsOfType(MediaAttachment.self) { [weak self] (attachment, _, _) in
+        textStoreCore.enumerateAttachmentsOfType(MediaAttachment.self) { [weak self] (attachment, _, _) in
             attachment.delegate = self
         }
         
-        enumerateRenderableAttachments(in: textStore, block: { [weak self] (attachment, _, _) in
+        textStoreCore.enumerateRenderableAttachments(block: { [weak self] (attachment, _, _) in
             attachment.delegate = self
         })
-                
     }
 }
 
@@ -413,7 +394,7 @@ private extension TextStorage {
     ///
     func ensureMatchingFontAndParagraphHeaderStyles(beforeApplying attrs: [NSAttributedString.Key: Any], at range: NSRange) -> [NSAttributedString.Key: Any] {
         let newStyle = attrs[.paragraphStyle] as? ParagraphStyle
-        let oldStyle = textStore.attribute(.paragraphStyle, at: range.location, effectiveRange: nil) as? ParagraphStyle
+        let oldStyle = textStoreCore.attribute(.paragraphStyle, at: range.location, effectiveRange: nil) as? ParagraphStyle
 
         let newLevel = newStyle?.headers.last?.level ?? .none
         let oldLevel = oldStyle?.headers.last?.level ?? .none

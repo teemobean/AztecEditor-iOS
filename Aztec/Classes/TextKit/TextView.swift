@@ -408,14 +408,15 @@ open class TextView: UITextView {
     @objc public init(
         defaultFont: UIFont,
         defaultParagraphStyle: ParagraphStyle = ParagraphStyle.default,
-        defaultMissingImage: UIImage) {
+        defaultMissingImage: UIImage,
+        defaultStorage: TextStorage = TextStorage()) {
 
         self.defaultFont = UIFontMetrics.default.scaledFont(for: defaultFont)
         
         self.defaultParagraphStyle = defaultParagraphStyle
         self.defaultMissingImage = defaultMissingImage
 
-        let storage = TextStorage()
+        let storage = defaultStorage
         let layoutManager = LayoutManager()
         let container = NSTextContainer()
 

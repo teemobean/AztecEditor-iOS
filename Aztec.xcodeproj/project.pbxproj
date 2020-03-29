@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		1A830346228583B200798076 /* NSBundle+AztecBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A830345228583B200798076 /* NSBundle+AztecBundle.swift */; };
+		2270509E241F4D5B00665417 /* TextStorageCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2270509D241F4D5B00665417 /* TextStorageCore.swift */; };
+		227050A02421F8E800665417 /* TextStorageCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2270509F2421F8E800665417 /* TextStorageCoreTests.swift */; };
 		40359F261FD88A5F00B1C1D2 /* HRElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40359F251FD88A5F00B1C1D2 /* HRElementConverter.swift */; };
 		40359F281FD88A7900B1C1D2 /* BRElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40359F271FD88A7900B1C1D2 /* BRElementConverter.swift */; };
 		40A2986D1FD61B0C00AEDF3B /* ElementConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A2986C1FD61B0C00AEDF3B /* ElementConverter.swift */; };
@@ -283,6 +285,8 @@
 
 /* Begin PBXFileReference section */
 		1A830345228583B200798076 /* NSBundle+AztecBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSBundle+AztecBundle.swift"; sourceTree = "<group>"; };
+		2270509D241F4D5B00665417 /* TextStorageCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextStorageCore.swift; sourceTree = "<group>"; };
+		2270509F2421F8E800665417 /* TextStorageCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextStorageCoreTests.swift; sourceTree = "<group>"; };
 		40359F251FD88A5F00B1C1D2 /* HRElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRElementConverter.swift; sourceTree = "<group>"; };
 		40359F271FD88A7900B1C1D2 /* BRElementConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BRElementConverter.swift; sourceTree = "<group>"; };
 		40A2986C1FD61B0C00AEDF3B /* ElementConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElementConverter.swift; sourceTree = "<group>"; };
@@ -811,6 +815,7 @@
 				599F25301D8BC9A1002871D6 /* MediaAttachment.swift */,
 				FF4E265F1EA8DF1E005E8E42 /* ImageAttachment.swift */,
 				FFFEC7DA1EA7698900F4210F /* VideoAttachment.swift */,
+				2270509D241F4D5B00665417 /* TextStorageCore.swift */,
 				599F25311D8BC9A1002871D6 /* TextStorage.swift */,
 				599F25321D8BC9A1002871D6 /* TextView.swift */,
 				E109B51B1DC33F2C0099605E /* LayoutManager.swift */,
@@ -927,6 +932,7 @@
 			isa = PBXGroup;
 			children = (
 				B5D575841F2288E2003A62F6 /* TextStorageTests.swift */,
+				2270509F2421F8E800665417 /* TextStorageCoreTests.swift */,
 				B5D575861F2288E2003A62F6 /* TextViewTests.swift */,
 				F1E1B7772062BE6B004642BB /* ParagraphStyleTests.swift */,
 				B5D575801F226FF4003A62F6 /* UnsupportedHTMLTests.swift */,
@@ -1566,6 +1572,7 @@
 				F1AFD65920B45E5700CB0279 /* HTMLAttachmentRenderer.swift in Sources */,
 				FF20D6411EDC389A00294B78 /* HTMLProcessor.swift in Sources */,
 				B5C99D3F1E72E2E700335355 /* UIStackView+Helpers.swift in Sources */,
+				2270509E241F4D5B00665417 /* TextStorageCore.swift in Sources */,
 				F1C05B991E37F99D007510EA /* Character+Name.swift in Sources */,
 				FF20D6421EDC389A00294B78 /* Processor.swift in Sources */,
 				599F253B1D8BC9A1002871D6 /* InNodesConverter.swift in Sources */,
@@ -1718,6 +1725,7 @@
 				F15415F9213447D70096D18E /* TextViewStub.swift in Sources */,
 				FF20D6471EDC3B3900294B78 /* HTMLProcessorTests.swift in Sources */,
 				B5B988D81FF4185400C0280D /* ShortcodeAttributeSerializerTests.swift in Sources */,
+				227050A02421F8E800665417 /* TextStorageCoreTests.swift in Sources */,
 				F185A5BE2123C0DA00DDFAB1 /* NSAttributedStringListsTests.swift in Sources */,
 				594C9D731D8BE6C300D74542 /* InAttributeConverterTests.swift in Sources */,
 				B5D575831F22820A003A62F6 /* HTMLRepresentationTests.swift in Sources */,
