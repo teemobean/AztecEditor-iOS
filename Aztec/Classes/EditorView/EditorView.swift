@@ -117,7 +117,11 @@ public class EditorView: UIView {
         initialSetup()
     }
     
-    public init(defaultFont: UIFont, defaultHTMLFont: UIFont, defaultParagraphStyle: ParagraphStyle, defaultMissingImage: UIImage) {
+    public init(defaultFont: UIFont,
+                defaultHTMLFont: UIFont,
+                defaultParagraphStyle: ParagraphStyle,
+                defaultMissingImage: UIImage,
+                defaultStorage: TextStorage = TextStorage()) {
         let storage = HTMLStorage(defaultFont: defaultHTMLFont)
         let layoutManager = NSLayoutManager()
         let container = NSTextContainer()
@@ -126,7 +130,7 @@ public class EditorView: UIView {
         layoutManager.addTextContainer(container)
 
         self.htmlTextView = UITextView(frame: .zero, textContainer: container)
-        self.richTextView = TextView(defaultFont: defaultFont, defaultParagraphStyle: defaultParagraphStyle, defaultMissingImage: defaultMissingImage)
+        self.richTextView = TextView(defaultFont: defaultFont, defaultParagraphStyle: defaultParagraphStyle, defaultMissingImage: defaultMissingImage, defaultStorage: defaultStorage)
 
         htmlTextView.smartInsertDeleteType = .no
         htmlTextView.smartDashesType = .no
