@@ -977,14 +977,16 @@ open class TextView: UITextView {
         notifyTextViewDidChange()
     }
 
-    func apply(formatter: AttributeFormatter, atRange range: NSRange, remove: Bool) {
+    func apply(formatter: AttributeFormatter, atRange range: NSRange, remove: Bool, skipUndoManager: Bool = false) {
 
         let applicationRange = formatter.applicationRange(for: range, in: textStorage)
         let originalString = storage.attributedSubstring(from: applicationRange)
 
-        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
-            self?.undoTextReplacement(of: originalString, finalRange: applicationRange)
-        })
+        if !skipUndoManager {
+            undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+                self?.undoTextReplacement(of: originalString, finalRange: applicationRange)
+            })
+        }
 
         if remove {
             formatter.removeAttributes(from: storage, at: applicationRange)
@@ -1363,15 +1365,17 @@ open class TextView: UITextView {
     ///     - target: the target for the link
     ///     - range: The NSRange to edit.
     ///
-    open func setLink(_ url: URL, title: String, target: String? = nil, inRange range: NSRange) {
+    open func setLink(_ url: URL, title: String, target: String? = nil, inRange range: NSRange, skipUndoManager: Bool = false) {
 
         let originalText = attributedText.attributedSubstring(from: range)
         let attributedTitle = NSAttributedString(string: title)
         let finalRange = NSRange(location: range.location, length: attributedTitle.length)        
 
-        undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
-            self?.undoTextReplacement(of: originalText, finalRange: finalRange)
-        })
+        if !skipUndoManager {
+            undoManager?.registerUndo(withTarget: self, handler: { [weak self] target in
+                self?.undoTextReplacement(of: originalText, finalRange: finalRange)
+            })
+        }
 
         let formatter = LinkFormatter(target: target)
         formatter.attributeValue = url
@@ -1391,20 +1395,20 @@ open class TextView: UITextView {
     ///     - target: the target for the link
     ///     - range: The NSRange to edit.
     ///
-    open func setLink(_ url: URL, target: String? = nil, inRange range: NSRange) {
+    open func setLink(_ url: URL, target: String? = nil, inRange range: NSRange, skipUndoManager: Bool = false) {
         let formatter = LinkFormatter(target: target)
         formatter.attributeValue = url
 
-        apply(formatter: formatter, atRange: range, remove: false)
+        apply(formatter: formatter, atRange: range, remove: false, skipUndoManager: skipUndoManager)
     }
 
     /// Removes the link, if any, at the specified range
     ///
     /// - Parameter range: range that contains the link to be removed.
     ///
-    open func removeLink(inRange range: NSRange) {
+    open func removeLink(inRange range: NSRange, skipUndoManager: Bool = false) {
         let formatter = LinkFormatter()
-        apply(formatter: formatter, atRange: range, remove: true)
+        apply(formatter: formatter, atRange: range, remove: true, skipUndoManager: skipUndoManager)
     }
 
 
